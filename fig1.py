@@ -12,8 +12,8 @@ execfile("./config.py")
 
 
 # Start the script
-diag = "siextent" # siextent, sivol or siarea
-domain = "Antarctic" # Domain under consideration 
+diag = "siarea" # siextent, sivol or siarea
+domain = "Arctic" # Domain under consideration 
 dirin = "./netcdfs/"   # where the pre-processed NetCDF data of volume and area are
 
 month = 9 # Month to plot (Standard convention): September = 9
@@ -87,11 +87,37 @@ for j_models in range(n_models):
     # Trend
     trend = np.polyfit(years, series[month::12], 1)[0] * 10.0 # per decade
     
-    data[j_models].append([complexity, mean, trend])
+    data[j_models].append([complexity, mean, trend, series])
 
 
 # Graphs
+has_plotted_legend = [False, False, False, False]
+
+fig = plt.figure("series")
+for d in data:
+    for m in d:
+        series = m[3][month::12]
+        color = colors_complexity[m[0] - 1]
+        if has_plotted_legend[m[0] - 1]:
+            label = None
+        else:
+            label = complexity_names[m[0] - 1]
+        has_plotted_legend[m[0] - 1] = True
+   
+        plt.plot(years, series, color = color, alpha = 0.5, label = label)
+        
+plt.ylabel(units)
+plt.title(month_name + " " + diag_name)
+plt.grid()
+plt.gca().set_axisbelow(True)
+plt.legend()
+plt.tight_layout()
+plt.savefig("./" + diag + "-" + domain + "-" + month_name + "-" + str(yearb) + "-" + str(yeare) + ".png", dpi = 500)
+plt.savefig("./" + diag + "-" + domain + "-" + month_name + "-" + str(yearb) + "-" + str(yeare) + ".pdf"           )
+
+
 fig = plt.figure("fig", figsize = (5, 7))
+
 
 # 1. MEAN STATE
 plt.subplot(2, 1, 1)
