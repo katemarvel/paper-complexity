@@ -12,13 +12,13 @@ execfile("./config.py")
 
 
 # Start the script
-diag = "siarea" # siextent, sivol or siarea
+diag = "siextent" # siextent, sivol or siarea
 domain = "Arctic" # Domain under consideration 
 dirin = "./netcdfs/"   # where the pre-processed NetCDF data of volume and area are
 
-month = 9 # Month to plot (Standard convention): September = 9
+month = 3 # Month to plot (Standard convention): September = 9
 
-colors_complexity = [[1.0, 0.0, 0.0], [1.0, 0.5, 0.0], [1.0, 1.0, 0.0], [0.0, 0.8, 0.0]]  # For plotting model complexity as color
+colors_complexity = ["#c7e9c0", "#74c476", "#31a354", [0.0, 0.2, 0.08]]  # For plotting model complexity as color
 complexity_names  = ["Very simple", "Simple", "Intermediate", "Complex"]
 # Start the script
 # ----------------
@@ -89,22 +89,18 @@ for j_models in range(n_models):
     
     data[j_models].append([complexity, mean, trend, series])
 
-
-# Graphs
+# Series
+tmp = [[y[0], y[3]] for x in data for y in x]    
 has_plotted_legend = [False, False, False, False]
-
+order = 1
 fig = plt.figure("series")
+counter=0
 for d in data:
     for m in d:
         series = m[3][month::12]
         color = colors_complexity[m[0] - 1]
-        if has_plotted_legend[m[0] - 1]:
-            label = None
-        else:
-            label = complexity_names[m[0] - 1]
-        has_plotted_legend[m[0] - 1] = True
    
-        plt.plot(years, series, color = color, alpha = 0.5, label = label)
+        plt.plot(years, series, color = color, alpha = 0.8)
         
 plt.ylabel(units)
 plt.title(month_name + " " + diag_name)
@@ -116,10 +112,9 @@ plt.savefig("./" + diag + "-" + domain + "-" + month_name + "-" + str(yearb) + "
 plt.savefig("./" + diag + "-" + domain + "-" + month_name + "-" + str(yearb) + "-" + str(yeare) + ".pdf"           )
 
 
-fig = plt.figure("fig", figsize = (5, 7))
-
 
 # 1. MEAN STATE
+fig = plt.figure("fig", figsize = (5, 7))
 plt.subplot(2, 1, 1)
 # List of pairs "complexity, value"
 tmp = [[y[0], y[1]] for x in data for y in x]
@@ -127,17 +122,19 @@ tmp = [[y[0], y[1]] for x in data for y in x]
 tmp.sort(key = lambda x : x[1])
 
 has_plotted_legend = [False, False, False, False]
+order = 1 # To freeze the order of legend
 for j in range(len(tmp)):
-    if has_plotted_legend[tmp[j][0] - 1]:
-        label = None
-    else:
+    if not has_plotted_legend[tmp[j][0] - 1] and  tmp[j][0] == order:
         label = complexity_names[tmp[j][0] - 1]
         has_plotted_legend[tmp[j][0] - 1] = True
+        order += 1
+    else:
+        label = None
         
     plt.fill((j, j + 1, j + 1, j), (0.0, 0.0, tmp[j][1], tmp[j][1]), 
          facecolor = colors_complexity[tmp[j][0] - 1],
          edgecolor = None,
-         alpha = 0.5, label = label)
+         alpha = 0.8, label = label)
 
 plt.title(str(yearb) + "-" + str(yeare) + " mean " + month_name + "\n" + diag_name)
 plt.ylabel(units)
@@ -155,17 +152,20 @@ tmp = [[y[0], y[2]] for x in data for y in x]
 tmp.sort(key = lambda x : x[1])
 
 has_plotted_legend = [False, False, False, False]
+order = 1
 for j in range(len(tmp)):
-    if has_plotted_legend[tmp[j][0] - 1]:
-        label = None
-    else:
+    if not has_plotted_legend[tmp[j][0] - 1] and  tmp[j][0] == order:
         label = complexity_names[tmp[j][0] - 1]
         has_plotted_legend[tmp[j][0] - 1] = True
+        order += 1
+    else:
+        label = None
+
         
     plt.fill((j, j + 1, j + 1, j), (0.0, 0.0, tmp[j][1], tmp[j][1]), 
          facecolor = colors_complexity[tmp[j][0] - 1],
          edgecolor = None,
-         alpha = 0.5, label = label)
+         alpha = 0.8, label = label)
     
 plt.title(str(yearb) + "-" + str(yeare) + " trend " + month_name + "\n" + diag_name)
 plt.xlabel("CMIP5 ensemble member #")
@@ -179,3 +179,6 @@ plt.tight_layout()
 
 plt.savefig("./" + domain + "-" + month_name + "-" + diag + "-" + str(yearb) + "-" + str(yeare) + ".png", dpi = 500)
 plt.savefig("./" + domain + "-" + month_name + "-" + diag + "-" + str(yearb) + "-" + str(yeare) + ".pdf")
+
+
+
