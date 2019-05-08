@@ -1,18 +1,29 @@
 #!/usr/bin/python
 #
-# Script to make Fig. ED4 of the proces paper
-# intended to highlight the absence of link
-# between model physics and process strength
-#
-# Author: F. Massonnet, September 2017
-#         francois.massonnet@uclouvain.be
+# Script for the BAMS paper on model complexity 
+# (Notz, Hunke, Massonnet, Vancoppenolle)
+
+# Author: F. Massonnet, Jan 2019 - April 2019
+# francois.massonnet@uclouvain.be
 
 # Load standard modules, fonts, etc.
-execfile("./config.py") 
+import sys
+
+# Python 2 or 3 call to config and namelist files
+if sys.version_info.major == 3:
+    # Read configuration file (fonts, imports, etc.)
+    exec(open("./config.py").read())
+    # Read CMIP5 namelist (in another file since this namelist is used by different scripts)
+    exec(open("./cmip5_namelist.py").read())
+else:
+    # Read configuration file (fonts, imports, etc.)
+    execfile("./config.py")
+    # Read CMIP5 namelist (in another file since this namelist is used by different scripts)
+    execfile("./cmip5_namelist.py")
 
 
 # Start the script
-diag = "siextent" # siextent, sivol or siarea
+diag = "sivol" # siextent, sivol or siarea
 domain = "Arctic" # Domain under consideration 
 dirin = "./netcdfs/"   # where the pre-processed NetCDF data of volume and area are
 
@@ -44,8 +55,6 @@ yearb = 1979
 yeare = 2004
 
 years = np.arange(yearb, yeare + 1)
-# Read CMIP5 namelist (in another file since this namelist is used by different scripts)
-execfile("./cmip5_namelist.py")
 
 n_models = len(info)
 n_years = yeare - yearb + 1
